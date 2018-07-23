@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/Home.vue';
-import About from './views/About.vue';
+import Books from './views/Books.vue';
+import Clients from './views/Clients.vue';
+import Client from './views/Client.vue';
 
 Vue.use(Router);
 
@@ -10,12 +11,18 @@ export default new Router({
     {
       path: '/',
       name: 'home',
-      component: Home,
+      component: Books,
     },
     {
-      path: '/about',
-      name: 'about',
-      component: About,
+      path: '/clients',
+      name: 'clients',
+      component: Clients,
+    },
+    {
+      path: '/clients/:key',
+      name: 'client',
+      component: Client,
     },
   ],
+  mode: 'history'
 });

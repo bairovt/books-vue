@@ -1,31 +1,80 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <v-app>
+    <v-navigation-drawer app
+      persistent
+      v-model="drawer"
+      fixed
+      :clipped="true"
+    >
+      <v-list>
+        <v-list-tile>
+          <v-list-tile-action>
+            <!-- <v-icon v-html="item.icon"></v-icon> -->
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title v-text="user.name"></v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile
+          value="true"
+          v-for="(item, i) in items"
+          :key="i"
+        >
+          <v-list-tile-action>
+            <v-icon v-html="item.icon"></v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title v-text="item.title"></v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-toolbar color="primary"
+      app
+    >
+    <!-- :clipped-left="clipped" -->
+      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+
+      <v-btn round to="/">
+        Книги
+      </v-btn>
+      <v-btn round to="/clients">
+        Клиенты
+      </v-btn>
+      <!-- <v-toolbar-title v-text="title" ></v-toolbar-title> -->
+      <v-spacer></v-spacer>
+
+    </v-toolbar>
+
+    <v-content>
+      <router-view/>
+    </v-content>
+
+  </v-app>
 </template>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-}
+<script>
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+export default {
+  name: 'App',
+  data() {
+    return {
+      drawer: false,
+      items: [{
+        icon: 'bubble_chart',
+        title: 'Inspire'
+      }]
+    }
+  },
+  computed: {
+    user() {
+      return this.$store.state.user;
+    }
+  },
+  mounted() {
+    this.$store.dispatch('fetchAllBooks');
+    this.$store.dispatch('fetchAllClients');
+  }
 }
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+</script>
