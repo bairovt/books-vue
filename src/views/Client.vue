@@ -41,7 +41,7 @@
       <v-flex>
         <v-list v-if="client">
           <template v-for="(order, index) in client.orders">
-            <v-list-tile :key="order._key">
+            <v-list-tile :key="order._key" :to="`/orders/${order._key}`">
               <v-list-tile-content>
                 <v-list-tile-title>
                   {{order.book.title}}
@@ -131,9 +131,14 @@ export default {
     },
     addBook() {
       this.orderData._from = this.client._id,
-      axiosInst.post('/api/books/order', {
+      axiosInst.post('/api/orders', {
         orderData: this.orderData
       })
+        .then(resp => {
+          this.addBookDialog = false;
+          this.fetchClient();
+        })
+       .catch(console.error);
     },
     showAll() {
       this.search = '';

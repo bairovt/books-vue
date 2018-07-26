@@ -3,7 +3,8 @@ const axios = require('axios');
 import store from '@/store'
 
 const axiosInst = axios.create({
-  baseURL: 'http://localhost:7000/', //process.env.API_URL,
+  // baseURL: process.env.API_URL,
+  baseURL: process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:7000/',
   timeout: process.env.NODE_ENV === 'development' ? 60000 : 10000 // todo: error dialog when canceled by timeout
   // withCredentials: true
 });
