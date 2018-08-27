@@ -11,7 +11,14 @@ export default new Vuex.Store({
     clients: [],
     user: {
       name: 'username'
-    }
+    },
+    statuses: [
+      {text: "ЗАКАЗАН", value: "ORDERED"},
+      {text: "ДОСТАВЛЕН", value: "SHIPPED"},
+      {text: "ОПЛАЧЕН", value: "PAID"},
+      {text: "ПРЕДОПЛАТА", value: "PREPAY"},
+      {text: "НЕОПРЕДЕЛЕН", value: "UNDEF"},
+    ]
   },
   mutations: {
     setLoading(state, payload) {state.loading = payload},

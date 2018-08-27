@@ -1,14 +1,17 @@
 <template>
-  <v-container fluid>
-    <v-layout>
+  <v-container>
+    <v-layout v-if="order._key">
+
       <v-flex sm6 xs10>
         <div v-if="order">
-            <v-subheader>Заказ {{order._key}}</v-subheader>
-            <router-link :to="`/clients/${order.client._key}`">{{order.client.name}}</router-link>
-            <h3>{{order.book.title}}</h3>
+            <v-subheader>Заказ {{order._key}} - {{order.status | status}}</v-subheader>
+            <big><router-link :to="`/clients/${order.client._key}`">{{order.client.name}}</router-link></big>
+            <h3>{{order.book.title}} - <small>{{order.price}}</small></h3>
+            <p>{{order.qty}} шт.- {{order | sum}} / {{order | paid}} р.</p>
         </div>
         <br>
       </v-flex>
+
       <v-flex xs2>
         <v-menu bottom right offset-y>
           <v-btn slot="activator" icon color="primary">
@@ -21,18 +24,19 @@
           </v-list>
         </v-menu>
       </v-flex>
+
     </v-layout>
 
-<v-divider></v-divider>
-<v-subheader>Добавить платеж</v-subheader>
-    <v-layout row justify-space-between>
-      <v-flex xs3>
+    <v-subheader>Платежи</v-subheader>
+    <v-divider></v-divider>
+    <v-layout row justify-left>
+      <v-flex xs3 sm2>
         <v-text-field
           v-model="payment.sum"
           label="сумма"
         ></v-text-field>
       </v-flex>
-      <v-flex>
+      <v-flex xs5 sm2>
         <v-menu
           :close-on-content-click="false"
           v-model="dateMenu"
@@ -57,14 +61,42 @@
           ></v-date-picker>
         </v-menu>
       </v-flex>
-      <v-spacer></v-spacer>
-      <v-flex xs4>
+      <!-- <v-spacer></v-spacer> -->
+      <v-flex xs4 sm2>
         <v-btn @click.stop="addPayment"
           color="primary"
           :disabled="!isSum(this.payment.sum)"
         >
           Добавить
         </v-btn>
+      </v-flex>
+    </v-layout>
+
+    <v-divider></v-divider>
+    <v-layout column>
+      <v-flex>
+        <v-list v-if="order">
+          <template v-for="(payment, index) in order.payments">
+            <v-layout :key="'l'+index">
+              <v-flex xs10>
+                <v-list-tile :key="`payment${index}`">
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      {{payment.sum}} р.
+                    </v-list-tile-title>
+                    <v-list-tile-sub-title>
+                      {{payment.date | localeDate}}
+                    </v-list-tile-sub-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+              </v-flex>
+              <v-flex xs2>
+                <a @click.stop="deletePayment(payment)">x</a>
+              </v-flex>
+            </v-layout>
+            <v-divider :key="index"></v-divider>
+          </template>
+        </v-list>
       </v-flex>
     </v-layout>
 
@@ -79,13 +111,14 @@ export default {
   data() {
     return {
       order: {
-        _from: "",  // client _id
-        _to: "",    // book _id
+        _from: '',  // client _id
+        _to: '',    // book _id
         client: {},
         book: {},
+        payments: [],
         qty: 0,
-        status: "",
-        info: ""
+        status: '',
+        info: ''
       },
       payment: {
         sum: null,
@@ -113,7 +146,11 @@ export default {
       axiosInst.post(`/api/orders/${this.$route.params.key}/pay`, {
         payment: this.payment
       })
-        .then(resp => {this.payment.sum = null})
+        .then(resp => {
+          this.payment.sum = null;
+          this.order.payments.push(resp.data.payment);
+          if (resp.data.status === 'PAID') this.order.status = 'PAID';
+        })
         .catch(console.error);
     },
     deleteOrder() {
@@ -123,26 +160,22 @@ export default {
         .then(resp => {this.$router.replace(`/clients/${this.order.client._key}`)})
         .catch(console.error);
     },
+    deletePayment(payment) {
+      const sum = prompt('Введите сумму для подтверждения удаления:');
+      if (Number(sum) === payment.sum) {
+        axiosInst.delete(`/api/orders/${this.order._key}/payment/${payment._key}`)
+          .then(resp => {
+            const index = this.order.payments.findIndex((el) => {return el._key === payment._key});
+            this.order.payments.splice(index, 1);
+            if (resp.data.status === 'UNDEF') this.order.status = 'UNDEF';
+          })
+          .catch(console.error);
+      }
+    },
     isSum(value) {
       let sum = Number(value);
       return !isNaN(sum) && sum > 0;
-    }
-  },
-  filters: {
-    /* total sum of the order */
-    sum(order) {
-      return order.qty * order.book.price;
     },
-    /* total sum paid for the order */
-    paid(order) {
-      let totalPaid = 0;
-      if (order.pays) {
-        totalPaid = order.pays.reduce((total, payment) => {
-          return total + payment.sum;
-        }, 0);
-      }
-      return totalPaid;
-    }
   },
   created() {
     const today = new Date();

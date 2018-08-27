@@ -25,7 +25,7 @@
     <v-divider></v-divider>
     <v-layout row justify-space-between>
       <v-flex>
-        <v-subheader>Книги</v-subheader>
+        <v-subheader>Заказы</v-subheader>
         <!-- <h3>Книги</h3> -->
       </v-flex>
       <v-flex>
@@ -41,16 +41,20 @@
       <v-flex>
         <v-list v-if="client">
           <template v-for="(order, index) in client.orders">
-            <v-list-tile :key="order._key" :to="`/orders/${order._key}`">
-              <v-list-tile-content>
-                <v-list-tile-title>
-                  {{order.book.title}}
-                </v-list-tile-title>
-                <v-list-tile-sub-title>
-                  {{order|sum}}/{{order|paid}}
-                </v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
+            <v-layout :key="'l'+index">
+              <v-flex>
+                <v-list-tile :key="order._key" :to="`/orders/${order._key}`">
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      {{order.book.title}}
+                    </v-list-tile-title>
+                    <v-list-tile-sub-title>
+                      {{order | sum}} / {{order | paid}} р. {{order.status | status}}
+                    </v-list-tile-sub-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+              </v-flex>
+            </v-layout>
             <v-divider :key="index"></v-divider>
           </template>
         </v-list>
@@ -60,7 +64,7 @@
     <v-dialog
       v-if="client"
       v-model="addBookDialog"
-      fullscreen
+      max-width="600"
     >
       <v-card tile>
         <v-toolbar card dark color="teal">
@@ -79,6 +83,11 @@
               item-text="title"
               item-value="_id"
               label="Книга"
+            ></v-select>
+            <v-select
+              v-model="orderData.status"
+              :items="statuses"
+              label="Статус"
             ></v-select>
             <v-text-field
               v-model="orderData.qty"
@@ -110,16 +119,14 @@ export default {
         _from: "",  // client _id
         _to: "",    // book _id
         qty: 1,
-        status: "",
+        status: "SHIPPED",
         info: ""
-      },
-      statuses: [
-
-      ]
+      }
     }
   },
   computed: {
-    books() {return this.$store.state.books}
+    books() {return this.$store.state.books},
+    statuses() {return this.$store.state.statuses}
   },
   methods: {
     fetchClient() {
@@ -153,22 +160,6 @@ export default {
         .catch(console.error);
     }
   },
-  filters: {
-    /* total sum of the order */
-    sum(order) {
-      return order.qty * order.book.price;
-    },
-    /* total sum paid for the order */
-    paid(order) {
-      let totalPaid = 0;
-      if (order.pays) {
-        totalPaid = order.pays.reduce((total, payment) => {
-          return total + payment.sum;
-        }, 0);
-      }
-      return totalPaid;
-    }
-  },
   // created() {
   //   this.findClientsDeb = _.debounce(this.findClients, 300);
   // },
@@ -178,3 +169,9 @@ export default {
 
 }
 </script>
+
+<style scoped>
+  /* a {
+    padding-left: 0px;
+  } */
+</style>
