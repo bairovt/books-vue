@@ -17,7 +17,7 @@
           :to="`/books/${book._key}`"
         >
           <v-card-title>
-            <h3>{{book.title}}</h3>
+            <h3 class="text-xs-center">{{book.title}}</h3>
           </v-card-title>
         </v-card>
       </v-layout>

@@ -5,6 +5,14 @@ Vue.filter('paid', paid);
 Vue.filter('sum', sum);
 Vue.filter('localeDate', localeDate);
 Vue.filter('status', status);
+Vue.filter('ruDate', ruDate);
+
+function ruDate(ISOdate) {
+    if (!ISOdate) return null;
+    const date = ISOdate.split('T')[0]; // year-month-day part
+    const [year, month, day] = date.split('-');
+    return `${day}.${month}.${year}`;
+}
 
 function status(value) {
     if (!value) return '';
@@ -15,13 +23,14 @@ function status(value) {
 }
 
 function localeDate(ISOdate) {
-    const date = new Date(ISOdate);
+    let date = new Date(ISOdate);
     const options = {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     }
-    return date.toLocaleDateString('ru', options);
+    date = date.toLocaleDateString('ru', options);
+    return date === 'Invalid Date' ? '-' : date;
 }
 
 function sum(order) {

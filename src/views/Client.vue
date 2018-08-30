@@ -4,7 +4,12 @@
       <v-flex sm6 xs10>
         <div v-if="client">
           <h2>{{client.name}}</h2>
-          <a :href="`tel:${client.phone}`">{{client.phone}}</a>
+          <big><a :href="`tel:${client.phone}`">{{client.phone}}</a></big>
+          <v-btn fab small @click.stop="setCallDateDialog = true">
+            <v-icon>call</v-icon>
+          </v-btn>
+          <span>{{client.calledAt | localeDate}}</span>
+          <p></p>
         </div>
         <br>
       </v-flex>
@@ -30,7 +35,7 @@
       </v-flex>
       <v-flex>
         <v-btn round small color="secondary"
-          @click.stop="addBookDialog = true"
+          @click.stop="addOrderDialog = true"
         >
           Добавить
         </v-btn>
@@ -62,43 +67,84 @@
     </v-layout>
 
     <v-dialog
-      v-if="client"
-      v-model="addBookDialog"
+      v-model="addOrderDialog"
       max-width="600"
+      v-if="client"
     >
       <v-card tile>
         <v-toolbar card dark color="teal">
-          <v-btn icon dark @click.native="addBookDialog = false">
+          <v-toolbar-items>
+            <v-btn dark flat @click.native="addOrder">Добавить заказ</v-btn>
+          </v-toolbar-items>
+          <v-spacer></v-spacer>
+          <v-btn icon dark @click.native="addOrderDialog = false">
             <v-icon>close</v-icon>
           </v-btn>
-          <v-spacer></v-spacer>
-          <v-toolbar-items>
-            <v-btn dark flat @click.native="addBook">Добавить книгу</v-btn>
-          </v-toolbar-items>
         </v-toolbar>
         <v-card-text>
-            <v-select
-              v-model="orderData._to"
-              :items="books"
-              item-text="title"
-              item-value="_id"
-              label="Книга"
-            ></v-select>
-            <v-select
-              v-model="orderData.status"
-              :items="statuses"
-              label="Статус"
-            ></v-select>
-            <v-text-field
-              v-model="orderData.qty"
-            ></v-text-field>
-            <v-textarea
-              placeholder="Информация"
-              v-model="orderData.info">
-            </v-textarea>
+          <v-select
+            v-model="orderData._to"
+            :items="books"
+            item-text="title"
+            item-value="_id"
+            label="Книга"
+          ></v-select>
+          <v-select
+            v-model="orderData.status"
+            :items="statuses"
+            label="Статус"
+          ></v-select>
+          <v-text-field
+            v-model="orderData.qty"
+          ></v-text-field>
+          <v-textarea
+            placeholder="Информация"
+            v-model="orderData.info">
+          </v-textarea>
         </v-card-text>
+      </v-card>
+    </v-dialog>
 
-        <div style="flex: 1 1 auto;"></div>
+    <v-dialog
+      v-model="setCallDateDialog"
+      max-width="215"
+      v-if="client"
+    >
+      <v-card tile>
+        <v-toolbar card color="teal">
+          <v-spacer></v-spacer>
+          <v-btn icon @click.native="setCallDateDialog = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <v-menu
+            :close-on-content-click="false"
+            v-model="callDateMenu"
+            :nudge-right="40"
+            lazy
+            transition="scale-transition"
+            offset-y
+            full-width
+            max-width="290px"
+            min-width="290px"
+          >
+            <v-text-field
+              slot="activator"
+              :value="this.$options.filters.ruDate(this.callDate)"
+              label="дата"
+              prepend-icon="event"
+              readonly
+            ></v-text-field>
+            <v-date-picker v-model="callDate" no-title @input="callDateMenu = false"
+              locale="ru-ru"
+            ></v-date-picker>
+          </v-menu>
+
+          <v-btn @click.native="setCallDate" color="teal" round>
+            Добавить звонок
+          </v-btn>
+        </v-card-text>
       </v-card>
     </v-dialog>
 
@@ -113,15 +159,17 @@ export default {
   data() {
     return {
       client: null,
-      addBookDialog: false,
-      orderDialog: false,
+      addOrderDialog: false,
+      setCallDateDialog: false,
       orderData: {
         _from: "",  // client _id
         _to: "",    // book _id
         qty: 1,
         status: "SHIPPED",
         info: ""
-      }
+      },
+      callDateMenu: false,
+      callDate: (new Date()).toISOString(),
     }
   },
   computed: {
@@ -134,18 +182,28 @@ export default {
         .then(resp => {
           this.client = resp.data;
         })
-        // .catch(console.error)
+        .catch(console.error)
     },
-    addBook() {
+    addOrder() {
       this.orderData._from = this.client._id,
       axiosInst.post('/api/orders', {
         orderData: this.orderData
       })
         .then(resp => {
-          this.addBookDialog = false;
+          this.addOrderDialog = false;
           this.fetchClient();
         })
-       .catch(console.error);
+        .catch(console.error);
+    },
+    setCallDate() {
+      axiosInst.post(`/api/clients/${this.client._key}/call`, {
+        calledAt: this.callDate
+      })
+        .then(resp => {
+            this.client.calledAt = resp.data;
+            this.setCallDateDialog = false;
+          })
+        .catch(console.error);
     },
     showAll() {
       this.search = '';
@@ -165,8 +223,7 @@ export default {
   // },
   mounted() {
     this.fetchClient();
-  },
-
+  }
 }
 </script>
 

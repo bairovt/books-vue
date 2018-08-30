@@ -72,9 +72,9 @@ export default {
       return this.$store.state.user;
     }
   },
-  mounted() {
+  created() {
     this.$store.dispatch('fetchAllBooks');
-    this.$store.dispatch('fetchAllClients');
+    this.$store.dispatch('fetchClientsTotal');
   }
 }
 </script>

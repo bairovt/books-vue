@@ -50,13 +50,12 @@
         >
           <v-text-field
             slot="activator"
-            :value="this.ruDate"
+            :value="this.$options.filters.ruDate(this.payment.date)"
             label="дата"
             prepend-icon="event"
             readonly
           ></v-text-field>
           <v-date-picker v-model="payment.date" no-title @input="dateMenu = false"
-
             locale="ru-ru"
           ></v-date-picker>
         </v-menu>
@@ -128,11 +127,6 @@ export default {
     }
   },
   computed: {
-    ruDate() {
-      if (!this.payment.date) return null;
-      const [year, month, day] = this.payment.date.split('-');
-      return `${day}.${month}.${year}`;
-    }
   },
   methods: {
     fetchOrder() {
