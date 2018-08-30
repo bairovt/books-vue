@@ -2,31 +2,46 @@
   <v-container>
     <v-layout>
       <v-flex sm6 xs10>
-        <div v-if="client">
           <h2>{{client.name}}</h2>
-          <big><a :href="`tel:${client.phone}`">{{client.phone}}</a></big>
+          <big><a :href="`tel:${client.phone}`">{{client.phone}}</a></big> &nbsp;
+          <big><a :href="`tel:${client.phone2}`">{{client.phone2}}</a></big> &nbsp;
           <v-btn fab small @click.stop="setCallDateDialog = true">
             <v-icon>call</v-icon>
           </v-btn>
           <span>{{client.calledAt | localeDate}}</span>
           <p></p>
-        </div>
-        <br>
       </v-flex>
-
       <v-flex xs2>
         <v-menu bottom right offset-y>
           <v-btn slot="activator" icon color="primary">
             <v-icon>more_vert</v-icon>
           </v-btn>
           <v-list>
-            <v-list-tile @click.stop="deleteClient">
+            <v-list-tile @click="updateClientDialog = true">
+              <v-list-tile-title>Изменить</v-list-tile-title>
+            </v-list-tile>
+            <v-list-tile @click="deleteClient">
               <v-list-tile-title>Удалить</v-list-tile-title>
             </v-list-tile>
           </v-list>
         </v-menu>
       </v-flex>
     </v-layout>
+
+    <v-layout row>
+      <v-flex sm6 xs10>
+        <v-subheader v-if="!client.info">Информация</v-subheader>
+        <p v-else>{{client.info}}</p>
+      </v-flex>
+      <v-flex xs2>
+        <v-btn icon dark color="teal" @click.stop="editInfoDialog = true"
+          class="mt-0"
+        >
+          <v-icon>edit</v-icon>
+        </v-btn>
+      </v-flex>
+    </v-layout>
+
     <v-divider></v-divider>
     <v-layout row justify-space-between>
       <v-flex>
@@ -41,10 +56,11 @@
         </v-btn>
       </v-flex>
     </v-layout>
+
     <v-divider></v-divider>
     <v-layout column>
       <v-flex>
-        <v-list v-if="client">
+        <v-list>
           <template v-for="(order, index) in client.orders">
             <v-layout :key="'l'+index">
               <v-flex>
@@ -69,7 +85,6 @@
     <v-dialog
       v-model="addOrderDialog"
       max-width="600"
-      v-if="client"
     >
       <v-card tile>
         <v-toolbar card dark color="teal">
@@ -108,7 +123,6 @@
     <v-dialog
       v-model="setCallDateDialog"
       max-width="215"
-      v-if="client"
     >
       <v-card tile>
         <v-toolbar card color="teal">
@@ -148,6 +162,49 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog
+      v-model="editInfoDialog"
+      max-width="600"
+    >
+      <v-card tile>
+        <v-toolbar card color="teal">
+          <v-toolbar-items>
+            <v-btn dark flat @click.native="saveInfo">Сохранить</v-btn>
+          </v-toolbar-items>
+          <v-spacer></v-spacer>
+          <v-btn icon @click.native="editInfoDialog = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <v-textarea
+            placeholder="Информация"
+            v-model="client.info"
+          >
+          </v-textarea>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="updateClientDialog"
+      max-width="600"
+    >
+      <v-card tile>
+        <v-toolbar card dark color="teal">
+          <v-toolbar-items>
+            <v-btn dark flat @click.native="updateClient">Сохранить</v-btn>
+          </v-toolbar-items>
+          <v-spacer></v-spacer>
+          <v-btn icon dark @click.native="updateClientDialog = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <client-form :client="client"></client-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -158,18 +215,28 @@ import axiosInst from '@/utils/axios-instance';
 export default {
   data() {
     return {
-      client: null,
+      client: {
+        name: '',
+        phone: '',
+        phone2: '',
+        info: '',
+        orders: [],
+        calledAt: ''
+      },
       addOrderDialog: false,
       setCallDateDialog: false,
+      editInfoDialog: false,
+      updateClientDialog: false,
       orderData: {
-        _from: "",  // client _id
-        _to: "",    // book _id
+        _from: '',  // client _id
+        _to: '',    // book _id
         qty: 1,
         status: "SHIPPED",
-        info: ""
+        info: ''
       },
       callDateMenu: false,
       callDate: (new Date()).toISOString(),
+      // info: ''
     }
   },
   computed: {
@@ -177,6 +244,28 @@ export default {
     statuses() {return this.$store.state.statuses}
   },
   methods: {
+    updateClient() {
+      axiosInst.post(`/api/clients/${this.client._key}/update`, {
+        name: this.client.name.trim(),
+        phone: this.client.phone.trim(),
+        phone2: this.client.phone2.trim()
+      })
+        .then(resp => {
+          // this.client.info = resp.data;
+          this.updateClientDialog = false;
+        })
+        .catch(console.error);
+    },
+    saveInfo() {
+      axiosInst.post(`/api/clients/${this.client._key}/info`, {
+        info: this.client.info
+      })
+        .then(resp => {
+          this.client.info = resp.data;
+          this.editInfoDialog = false;
+        })
+        .catch(console.error);
+    },
     fetchClient() {
       axiosInst.get(`/api/clients/${this.$route.params.key}`)
         .then(resp => {
@@ -218,9 +307,6 @@ export default {
         .catch(console.error);
     }
   },
-  // created() {
-  //   this.findClientsDeb = _.debounce(this.findClients, 300);
-  // },
   mounted() {
     this.fetchClient();
   }

@@ -6,7 +6,9 @@ import router from './router';
 import store from './store';
 import './registerServiceWorker';
 import './filters';
+import ClientForm from './components/shared/ClientForm';
 
+Vue.component('client-form', ClientForm);
 
 Vue.config.productionTip = false;
 

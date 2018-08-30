@@ -24,7 +24,6 @@ export default new Vuex.Store({
   mutations: {
     setLoading(state, payload) {state.loading = payload},
     setBooks(state, payload) {state.books = payload},
-    // setClients(state, payload) {state.clients = payload}
     setClientsTotal(state, payload) {state.clientsTotal = payload}
   },
   actions: {

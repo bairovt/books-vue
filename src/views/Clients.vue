@@ -33,7 +33,7 @@
           :messages = [clients.length]
           v-model="searchStr"
           @focus="placeholder='поиск'"
-          @input="search"
+          @input="searchDebounced"
         ></v-text-field>
         <!-- @input="findClientsDeb" -->
       </v-flex>
@@ -73,22 +73,8 @@
           </v-btn>
         </v-toolbar>
         <v-card-text>
-            <v-text-field
-              placeholder="Имя"
-              v-model="newClient.name">
-
-            </v-text-field>
-            <v-text-field
-              placeholder="Телефон"
-              v-model="newClient.phone">
-            </v-text-field>
-            <v-textarea
-              placeholder="Информация"
-              v-model="newClient.info">
-            </v-textarea>
+          <client-form :client="newClient"></client-form>
         </v-card-text>
-
-        <div style="flex: 1 1 auto;"></div>
       </v-card>
     </v-dialog>
   </v-container>
@@ -111,6 +97,7 @@ export default {
       newClient: {
         name: "",
         phone: "",
+        phone2: "",
         info: ""
       }
     }
@@ -129,15 +116,6 @@ export default {
       })
       .then(resp => {this.$router.replace(`/clients/${resp.data._key}`)})
       .catch(console.error);
-    },
-    findClients: function() {
-      this.placeholder = 'поиск';
-      if (this.searchStr.length <= 2) return this.clients = [];  // don't searchStr if <= 2 letters
-      this.clients = this.$store.state.clients.filter(client => {
-        const name = client.name.toLocaleLowerCase(); // name in lower case
-        const searchStr = this.searchStr.toLocaleLowerCase();
-        return name.includes(searchStr); // if contains substr
-      })
     },
     filterClients() {
       this.searchStr = '';
@@ -173,7 +151,7 @@ export default {
     }
   },
   created() {
-    this.findClientsDeb = _.debounce(this.findClients, 300);
+    this.searchDebounced = _.debounce(this.search, 300);
     this.filterClients();
   },
   mounted() {},
