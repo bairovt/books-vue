@@ -98,23 +98,45 @@
         </v-toolbar>
         <v-card-text>
           <v-select
-            v-model="orderData._to"
+            v-model="newOrder._to"
             :items="books"
             item-text="title"
             item-value="_id"
             label="Книга"
           ></v-select>
           <v-select
-            v-model="orderData.status"
+            v-model="newOrder.status"
             :items="statuses"
             label="Статус"
           ></v-select>
+          <v-menu
+            :close-on-content-click="false"
+            v-model="statusDateMenu"
+            :nudge-right="40"
+            lazy
+            transition="scale-transition"
+            offset-y
+            full-width
+            max-width="290px"
+            min-width="290px"
+          >
+            <v-text-field
+              slot="activator"
+              :value="this.$options.filters.ruDate(this.newOrder.statusDate)"
+              label="дата статуса"
+              prepend-icon="event"
+              readonly
+            ></v-text-field>
+            <v-date-picker v-model="newOrder.statusDate" no-title @input="statusDateMenu = false"
+              locale="ru-ru"
+            ></v-date-picker>
+          </v-menu>
           <v-text-field
-            v-model="orderData.qty"
+            v-model="newOrder.qty"
           ></v-text-field>
           <v-textarea
             placeholder="Информация"
-            v-model="orderData.info">
+            v-model="newOrder.info">
           </v-textarea>
         </v-card-text>
       </v-card>
@@ -227,11 +249,13 @@ export default {
       setCallDateDialog: false,
       editInfoDialog: false,
       updateClientDialog: false,
-      orderData: {
+      statusDateMenu: false,
+      newOrder: {
         _from: '',  // client _id
         _to: '',    // book _id
         qty: 1,
         status: "SHIPPED",
+        statusDate: '',
         info: ''
       },
       callDateMenu: false,
@@ -274,9 +298,9 @@ export default {
         .catch(console.error)
     },
     addOrder() {
-      this.orderData._from = this.client._id,
+      this.newOrder._from = this.client._id,
       axiosInst.post('/api/orders', {
-        orderData: this.orderData
+        newOrder: this.newOrder
       })
         .then(resp => {
           this.addOrderDialog = false;

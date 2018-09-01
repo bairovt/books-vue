@@ -8,8 +8,20 @@
             <big><router-link :to="`/clients/${order.client._key}`">{{order.client.name}}</router-link></big>
             <h3>{{order.book.title}} - <small>{{order.price}}</small></h3>
             <p>{{order.qty}} шт.- {{order | sum}} / {{order | paid}} р.</p>
+            <div class="text-xs-right">
+              <!-- <p v-if="order.orderedAt">заказан: {{order.orderedAt | ruDate}}</p>               -->
+              <template v-for="(status, index) in statuses">
+                  <p v-if="status.value.toLowerCase()+'At' in order" :key="'status'+index"
+                    class="mb-0"
+                  >
+                    {{status.text.toLowerCase()}}: {{order[status.value.toLowerCase()+'At'] | ruDate}}
+                  </p>
+                <!-- <small v-if="status.value.toLowerCase()+'At' in order" :key="'status'+index">
+                  <p>{{status.text.toLowerCase()}}: {{order[status.value.toLowerCase()+'At'] | ruDate}}</p>
+                </small> -->
+              </template>
+            </div>
         </div>
-        <br>
       </v-flex>
 
       <v-flex xs2>
@@ -127,6 +139,7 @@ export default {
     }
   },
   computed: {
+    statuses() {return this.$store.state.statuses}
   },
   methods: {
     fetchOrder() {

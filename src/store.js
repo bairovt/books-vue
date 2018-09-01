@@ -14,10 +14,12 @@ export default new Vuex.Store({
       name: 'username'
     },
     statuses: [
+      {text: "ПРЕДОПЛАТА", value: "PREPAY"},
       {text: "ЗАКАЗАН", value: "ORDERED"},
       {text: "ДОСТАВЛЕН", value: "SHIPPED"},
       {text: "ОПЛАЧЕН", value: "PAID"},
-      {text: "ПРЕДОПЛАТА", value: "PREPAY"},
+      {text: "ВОЗВРАТ", value: "RETURN"},
+      {text: "УКЛОНЕНИЕ", value: "AVOID"},
       {text: "НЕОПРЕДЕЛЕН", value: "UNDEF"},
     ]
   },
