@@ -33,6 +33,9 @@
             <v-list-tile @click.stop="deleteOrder">
               <v-list-tile-title>Удалить заказ</v-list-tile-title>
             </v-list-tile>
+            <v-list-tile @click.stop="changeStatusDialog = true">
+              <v-list-tile-title>Изменить статус</v-list-tile-title>
+            </v-list-tile>
           </v-list>
         </v-menu>
       </v-flex>
@@ -51,7 +54,7 @@
       <v-flex xs5 sm2>
         <v-menu
           :close-on-content-click="false"
-          v-model="dateMenu"
+          v-model="paymentDateMenu"
           :nudge-right="40"
           lazy
           transition="scale-transition"
@@ -67,7 +70,7 @@
             prepend-icon="event"
             readonly
           ></v-text-field>
-          <v-date-picker v-model="payment.date" no-title @input="dateMenu = false"
+          <v-date-picker v-model="payment.date" no-title @input="paymentDateMenu = false"
             locale="ru-ru"
           ></v-date-picker>
         </v-menu>
@@ -111,6 +114,52 @@
       </v-flex>
     </v-layout>
 
+    <v-dialog
+      v-model="changeStatusDialog"
+      max-width="600"
+    >
+      <v-card tile>
+        <v-toolbar card dark color="teal">
+          <v-toolbar-items>
+            <v-btn dark flat @click.native="changeStatus">Сохранить</v-btn>
+          </v-toolbar-items>
+          <v-spacer></v-spacer>
+          <v-btn icon dark @click.native="changeStatusDialog = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <v-select
+            v-model="newStatus"
+            :items="statuses"
+            label="Статус"
+          ></v-select>
+          <v-menu
+            :close-on-content-click="false"
+            v-model="newStatusDateMenu"
+            :nudge-right="40"
+            lazy
+            transition="scale-transition"
+            offset-y
+            full-width
+            max-width="290px"
+            min-width="290px"
+          >
+            <v-text-field
+              slot="activator"
+              :value="this.$options.filters.ruDate(this.newStatusDate)"
+              label="дата статуса"
+              prepend-icon="event"
+              readonly
+            ></v-text-field>
+            <v-date-picker v-model="newStatusDate" no-title @input="newStatusDateMenu = false"
+              locale="ru-ru"
+            ></v-date-picker>
+          </v-menu>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
   </v-container>
 </template>
 
@@ -131,17 +180,34 @@ export default {
         status: '',
         info: ''
       },
+      changeStatusDialog: false,
+      newStatus: '',
+      newStatusDateMenu: false,
+      newStatusDate: null,
       payment: {
         sum: null,
         date: null
       },
-      dateMenu: false
+      paymentDateMenu: false
     }
   },
   computed: {
     statuses() {return this.$store.state.statuses}
   },
   methods: {
+    changeStatus() {
+      axiosInst.post(`/api/orders/${this.$route.params.key}/change-status`, {
+        status: this.newStatus,
+        date: this.newStatusDate
+      })
+        .then(resp => {
+          const {status, statusAt, date} = resp.data;
+          this.order.status = status;
+          this.order[statusAt] = date;
+          this.changeStatusDialog = false;
+        })
+        .catch(console.error)
+    },
     fetchOrder() {
       axiosInst.get(`/api/orders/${this.$route.params.key}`)
         .then(resp => {
