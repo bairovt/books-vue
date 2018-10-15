@@ -19,6 +19,7 @@
           value="true"
           v-for="(item, i) in items"
           :key="i"
+          :to="item.href"
         >
           <v-list-tile-action>
             <v-icon v-html="item.icon"></v-icon>
@@ -62,9 +63,16 @@ export default {
     return {
       drawer: false,
       items: [{
-        icon: 'bubble_chart',
-        title: 'Inspire'
-      }]
+          icon: 'bubble_chart',
+          title: 'Места',
+          href: '/places'
+        },
+        {
+          icon: 'bubble_chart',
+          title: 'Организации',
+          href: '/jobs'
+        }
+      ]
     }
   },
   computed: {
@@ -75,6 +83,7 @@ export default {
   created() {
     this.$store.dispatch('fetchAllBooks');
     this.$store.dispatch('fetchClientsTotal');
+    this.$store.dispatch('fetchAllPlaces')
   }
 }
 </script>

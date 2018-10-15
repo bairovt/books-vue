@@ -10,6 +10,7 @@ export default new Vuex.Store({
     books: [],
     clients: [],
     clientsTotal: 0,
+    allPlaces: [],
     user: {
       name: 'username'
     },
@@ -26,7 +27,9 @@ export default new Vuex.Store({
   mutations: {
     setLoading(state, payload) {state.loading = payload},
     setBooks(state, payload) {state.books = payload},
-    setClientsTotal(state, payload) {state.clientsTotal = payload}
+    setClientsTotal(state, payload) {state.clientsTotal = payload},
+    setAllPlaces(state, payload) {state.allPlaces = payload},
+    addPlace(state, payload) {state.allPlaces.push(payload)}
   },
   actions: {
     fetchAllBooks({commit}) {
@@ -40,6 +43,13 @@ export default new Vuex.Store({
       axiosInst.get('/api/clients/total')
         .then(resp => {
           commit('setClientsTotal', resp.data);
+        })
+        .catch(console.error);
+    },
+    fetchAllPlaces({commit}) {
+      axiosInst.get('/api/places/all')
+        .then(resp => {
+          commit('setAllPlaces', resp.data);
         })
         .catch(console.error);
     }
