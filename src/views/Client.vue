@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <v-layout>
-      <v-flex sm6 xs10>
-          <h2>{{client.name}}</h2>
+      <v-flex sm6 xs10 v-if="client.name">
+          <h2><span v-if="client.imported && !client.revise">&#9679; </span>{{client.name}}</h2>
           <big><a :href="`tel:${client.phone}`">{{client.phone}}</a></big> &nbsp;
           <big><a :href="`tel:${client.phone2}`">{{client.phone2}}</a></big> &nbsp;
           <v-btn fab small @click.stop="setCallDateDialog = true">
@@ -19,6 +19,9 @@
           <v-list>
             <v-list-tile @click="updateClientDialog = true">
               <v-list-tile-title>Изменить</v-list-tile-title>
+            </v-list-tile>
+            <v-list-tile @click="reviseDialog = true">
+              <v-list-tile-title>Сверка</v-list-tile-title>
             </v-list-tile>
             <v-list-tile @click="deleteClient">
               <v-list-tile-title>Удалить</v-list-tile-title>
@@ -213,6 +216,29 @@
     </v-dialog>
 
     <v-dialog
+      v-model="reviseDialog"
+      max-width="600"
+    >
+      <v-card tile>
+        <v-toolbar card color="teal">
+          <v-toolbar-items>
+            <v-btn dark flat @click.native="saveRevise">Сохранить</v-btn>
+          </v-toolbar-items>
+          <v-spacer></v-spacer>
+          <v-btn icon @click.native="reviseDialog = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <v-checkbox
+            label="Сверка"
+            v-model="client.revise"
+          ></v-checkbox>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
       v-model="updateClientDialog"
       max-width="600"
     >
@@ -247,12 +273,14 @@ export default {
         phone2: '',
         info: '',
         orders: [],
-        calledAt: ''
+        calledAt: '',
+        revise: undefined
       },
       addOrderDialog: false,
       setCallDateDialog: false,
       editInfoDialog: false,
       updateClientDialog: false,
+      reviseDialog: false,
       statusDateMenu: false,
       newOrder: {
         num: null,
@@ -292,6 +320,16 @@ export default {
         .then(resp => {
           this.client.info = resp.data;
           this.editInfoDialog = false;
+        })
+        .catch(console.error);
+    },
+    saveRevise() {
+      axiosInst.post(`/api/clients/${this.client._key}/revise`, {
+        revise: this.client.revise
+      })
+        .then(resp => {
+          this.client.revise = resp.data.revise;
+          this.reviseDialog = false;
         })
         .catch(console.error);
     },
