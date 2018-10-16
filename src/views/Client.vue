@@ -104,6 +104,10 @@
             item-value="_id"
             label="Книга"
           ></v-select>
+          <v-text-field
+            label="№ в тетради"
+            v-model="newOrder.num"
+          ></v-text-field>
           <v-select
             v-model="newOrder.status"
             :items="statuses"
@@ -251,6 +255,7 @@ export default {
       updateClientDialog: false,
       statusDateMenu: false,
       newOrder: {
+        num: null,
         _from: '',  // client _id
         _to: '',    // book _id
         qty: 1,

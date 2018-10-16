@@ -4,7 +4,7 @@
 
       <v-flex sm6 xs10>
         <div v-if="order">
-            <v-subheader>Заказ {{order._key}} - {{order.status | status}}</v-subheader>
+            <v-subheader>Заказ № {{order.num}} - {{order.status | status}}</v-subheader>
             <big><router-link :to="`/clients/${order.client._key}`">{{order.client.name}}</router-link></big>
             <h3>{{order.book.title}} - <small>{{order.price}}</small></h3>
             <p>{{order.qty}} шт.- {{order | sum}} / {{order | paid}} р.</p>
@@ -30,11 +30,14 @@
             <v-icon>more_vert</v-icon>
           </v-btn>
           <v-list>
+            <v-list-tile @click.stop="changeStatusDialog = true">
+              <v-list-tile-title>Изменить СТАТУС</v-list-tile-title>
+            </v-list-tile>
+            <v-list-tile @click.stop="changeNumDialog = true">
+              <v-list-tile-title>Изменить №</v-list-tile-title>
+            </v-list-tile>
             <v-list-tile @click.stop="deleteOrder">
               <v-list-tile-title>Удалить заказ</v-list-tile-title>
-            </v-list-tile>
-            <v-list-tile @click.stop="changeStatusDialog = true">
-              <v-list-tile-title>Изменить статус</v-list-tile-title>
             </v-list-tile>
           </v-list>
         </v-menu>
@@ -160,6 +163,29 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog
+      v-model="changeNumDialog"
+      max-width="600"
+    >
+      <v-card tile>
+        <v-toolbar card dark color="teal">
+          <v-toolbar-items>
+            <v-btn dark flat @click.native="changeNum">Сохранить</v-btn>
+          </v-toolbar-items>
+          <v-spacer></v-spacer>
+          <v-btn icon dark @click.native="changeNumDialog = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <v-text-field
+            v-model="order.num"
+            label="№ заказа"
+          ></v-text-field>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
   </v-container>
 </template>
 
@@ -171,6 +197,7 @@ export default {
   data() {
     return {
       order: {
+        num: null,
         _from: '',  // client _id
         _to: '',    // book _id
         client: {},
@@ -181,6 +208,7 @@ export default {
         info: ''
       },
       changeStatusDialog: false,
+      changeNumDialog: false,
       newStatus: '',
       newStatusDateMenu: false,
       newStatusDate: null,
@@ -195,6 +223,17 @@ export default {
     statuses() {return this.$store.state.statuses}
   },
   methods: {
+    changeNum() {
+      axiosInst.post(`/api/orders/${this.$route.params.key}/change-num`, {
+        num: this.order.num
+      })
+        .then(resp => {
+          const {num} = resp.data;
+          this.order.num = num;
+          this.changeNumDialog = false;
+        })
+        .catch(console.error)
+    },
     changeStatus() {
       axiosInst.post(`/api/orders/${this.$route.params.key}/change-status`, {
         status: this.newStatus,
