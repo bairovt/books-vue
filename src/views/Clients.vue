@@ -45,7 +45,7 @@
             <v-list-tile :key="client._key" :to="`/clients/${client._key}`">
               <v-list-tile-content>
                 <v-list-tile-title>
-                  <span v-if="lient.imported && !client.revise">&#9679; </span>{{client.name}}
+                  <span v-if="client.hasOwnProperty('xlsA') && !client.checked">&#9679; </span>{{client.name}}
                 </v-list-tile-title>
                 <v-list-tile-sub-title>
                   {{client.phone}}

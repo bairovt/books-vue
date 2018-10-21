@@ -2,7 +2,7 @@
   <v-container>
     <v-layout>
       <v-flex sm6 xs10 v-if="client.name">
-          <h2><span v-if="client.imported && !client.revise">&#9679; </span>{{client.name}}</h2>
+          <h2><span v-if="client.hasOwnProperty('xlsA') && !client.checked">&#9679; </span>{{client.name}}</h2>
           <big><a :href="`tel:${client.phone}`">{{client.phone}}</a></big> &nbsp;
           <big><a :href="`tel:${client.phone2}`">{{client.phone2}}</a></big> &nbsp;
           <v-btn fab small @click.stop="setCallDateDialog = true">
@@ -20,7 +20,7 @@
             <v-list-tile @click="updateClientDialog = true">
               <v-list-tile-title>Изменить</v-list-tile-title>
             </v-list-tile>
-            <v-list-tile @click="reviseDialog = true">
+            <v-list-tile @click="checkDialog = true">
               <v-list-tile-title>Сверка</v-list-tile-title>
             </v-list-tile>
             <v-list-tile @click="deleteClient">
@@ -45,6 +45,45 @@
       </v-flex>
     </v-layout>
 
+    <!-- <v-divider></v-divider> -->
+    <table v-if="!client.checked">
+      <tr>
+        <td>A (номера тетр.)</td>
+        <td>{{client.xlsA}}</td>
+      </tr>
+      <tr>
+        <td>E (работа)</td>
+        <td>{{client.xlsE}}</td>
+      </tr>
+      <tr>
+        <td>F (место)</td>
+        <td>{{client.xlsF}}</td>
+      </tr>
+      <tr>
+        <td>G (Тэмуджин)</td>
+        <td>{{client.xlsG}}</td>
+      </tr>
+      <tr>
+        <td>H (Тэмуджин)</td>
+        <td>{{client.xlsG}}</td>
+      </tr>
+      <tr>
+        <td>I (Сказания Хори)</td>
+        <td>{{client.xlsI}}</td>
+      </tr>
+      <tr>
+        <td>J (Сказания Хори)</td>
+        <td>{{client.xlsJ}}</td>
+      </tr>
+      <tr>
+        <td>K (Чингисхан)</td>
+        <td>{{client.xlsK}}</td>
+      </tr>
+      <tr>
+        <td>L (Рабджун)</td>
+        <td>{{client.xlsL}}</td>
+      </tr>
+    </table>
     <v-divider></v-divider>
     <v-layout row justify-space-between>
       <v-flex>
@@ -216,23 +255,23 @@
     </v-dialog>
 
     <v-dialog
-      v-model="reviseDialog"
+      v-model="checkDialog"
       max-width="600"
     >
       <v-card tile>
         <v-toolbar card color="teal">
           <v-toolbar-items>
-            <v-btn dark flat @click.native="saveRevise">Сохранить</v-btn>
+            <v-btn dark flat @click.native="saveCheck">Сохранить</v-btn>
           </v-toolbar-items>
           <v-spacer></v-spacer>
-          <v-btn icon @click.native="reviseDialog = false">
+          <v-btn icon @click.native="checkDialog = false">
             <v-icon>close</v-icon>
           </v-btn>
         </v-toolbar>
         <v-card-text>
           <v-checkbox
             label="Сверка"
-            v-model="client.revise"
+            v-model="client.checked"
           ></v-checkbox>
         </v-card-text>
       </v-card>
@@ -274,13 +313,13 @@ export default {
         info: '',
         orders: [],
         calledAt: '',
-        revise: undefined
+        checked: undefined
       },
       addOrderDialog: false,
       setCallDateDialog: false,
       editInfoDialog: false,
       updateClientDialog: false,
-      reviseDialog: false,
+      checkDialog: false,
       statusDateMenu: false,
       newOrder: {
         num: null,
@@ -323,13 +362,13 @@ export default {
         })
         .catch(console.error);
     },
-    saveRevise() {
-      axiosInst.post(`/api/clients/${this.client._key}/revise`, {
-        revise: this.client.revise
+    saveCheck() {
+      axiosInst.post(`/api/clients/${this.client._key}/check`, {
+        checked: this.client.checked
       })
         .then(resp => {
-          this.client.revise = resp.data.revise;
-          this.reviseDialog = false;
+          this.client.checked = resp.data.checked;
+          this.checkDialog = false;
         })
         .catch(console.error);
     },
@@ -384,4 +423,11 @@ export default {
   /* a {
     padding-left: 0px;
   } */
+  table {
+    border-collapse: collapse;
+  }
+  td {
+    border: 1px solid grey;
+    padding: 2px;
+  }
 </style>
