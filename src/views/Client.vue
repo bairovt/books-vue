@@ -2,14 +2,14 @@
   <v-container>
     <v-layout>
       <v-flex sm6 xs10 v-if="client.name">
-          <h2><span v-if="client.hasOwnProperty('xlsA') && !client.checked">&#9679; </span>{{client.name}}</h2>
+          <h2>{{client.name}}<span v-if="client.hasOwnProperty('xlsA') && !client.checked"> &#9679;</span></h2>
           <big><a :href="`tel:${client.phone}`">{{client.phone}}</a></big> &nbsp;
           <big><a :href="`tel:${client.phone2}`">{{client.phone2}}</a></big> &nbsp;
           <v-btn fab small @click.stop="setCallDateDialog = true">
             <v-icon>call</v-icon>
           </v-btn>
-          <span>{{client.calledAt | localeDate}}</span>
-          <p></p>
+          <span>{{client.calledAt | ruDate}}</span>
+          <p v-if="client.place"><small>насел. пункт:</small> {{client.place | placeName}}</p>
       </v-flex>
       <v-flex xs2>
         <v-menu bottom right offset-y>
@@ -46,17 +46,17 @@
     </v-layout>
 
     <!-- <v-divider></v-divider> -->
-    <table v-if="!client.checked">
+    <table v-if="client.hasOwnProperty('xlsA') && !client.checked">
       <tr>
         <td>A (номера тетр.)</td>
         <td>{{client.xlsA}}</td>
       </tr>
       <tr>
-        <td>E (работа)</td>
+        <td>E (организация)</td>
         <td>{{client.xlsE}}</td>
       </tr>
       <tr>
-        <td>F (место)</td>
+        <td>F (насел. пункт)</td>
         <td>{{client.xlsF}}</td>
       </tr>
       <tr>
@@ -109,7 +109,7 @@
                 <v-list-tile :key="order._key" :to="`/orders/${order._key}`">
                   <v-list-tile-content>
                     <v-list-tile-title>
-                      {{order.book.title}}
+                      {{order.book.title}} № {{order.num}}
                     </v-list-tile-title>
                     <v-list-tile-sub-title>
                       {{order | sum}} / {{order | paid}} р. {{order.status | status}}
@@ -302,6 +302,7 @@
 <script>
 import _ from 'lodash';
 import axiosInst from '@/utils/axios-instance';
+import trimObject from '@/utils/trim-object';
 
 export default {
   data() {
@@ -313,6 +314,7 @@ export default {
         info: '',
         orders: [],
         calledAt: '',
+        place: null,
         checked: undefined
       },
       addOrderDialog: false,
@@ -341,10 +343,12 @@ export default {
   },
   methods: {
     updateClient() {
+      trimObject(this.client);
       axiosInst.post(`/api/clients/${this.client._key}/update`, {
-        name: this.client.name.trim(),
-        phone: this.client.phone.trim(),
-        phone2: this.client.phone2.trim()
+        name: this.client.name,
+        phone: this.client.phone,
+        phone2: this.client.phone2,
+        place: this.client.place,
       })
         .then(resp => {
           // this.client.info = resp.data;

@@ -14,6 +14,16 @@
                     placeholder="Телефон 2"
                     v-model="client.phone2">
                 </v-text-field>
+                <v-autocomplete
+                    v-model="client.place"
+                    placeholder="Насел. пункт"
+                    item-text="name"
+                    item-value="_id"
+                    :items="allPlaces"
+                    :chips="true"
+                    :deletable-chips="true"
+                >
+                </v-autocomplete>
             </v-flex>
         </v-layout>
     </v-container>
@@ -21,6 +31,14 @@
 
 <script>
 export default {
-    props: ['client']
+    props: ['client'],
+    data() {
+        return {
+
+        }
+    },
+    computed: {
+        allPlaces() {return this.$store.state.allPlaces}
+    }
 }
 </script>

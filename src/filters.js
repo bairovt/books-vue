@@ -6,6 +6,14 @@ Vue.filter('sum', sum);
 Vue.filter('localeDate', localeDate);
 Vue.filter('status', status);
 Vue.filter('ruDate', ruDate);
+Vue.filter('placeName', placeName);
+
+function placeName(placeId) {
+    const place =  store.state.allPlaces.find(el => {
+        return el._id === placeId;
+    });
+    return place.name;
+}
 
 function ruDate(ISOdate) {
     if (!ISOdate) return null;

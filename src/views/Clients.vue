@@ -45,7 +45,7 @@
             <v-list-tile :key="client._key" :to="`/clients/${client._key}`">
               <v-list-tile-content>
                 <v-list-tile-title>
-                  <span v-if="client.hasOwnProperty('xlsA') && !client.checked">&#9679; </span>{{client.name}}
+                  {{client.name}}<span v-if="client.hasOwnProperty('xlsA') && !client.checked"> &#9679;</span>
                 </v-list-tile-title>
                 <v-list-tile-sub-title>
                   {{client.phone}}
@@ -83,6 +83,7 @@
 <script>
 import _ from 'lodash';
 import axiosInst from '@/utils/axios-instance';
+import trimObject from '@/utils/trim-object';
 
 export default {
   data() {
@@ -98,7 +99,7 @@ export default {
         name: "",
         phone: "",
         phone2: "",
-        info: ""
+        place: ""
       }
     }
   },
@@ -111,6 +112,7 @@ export default {
   },
   methods: {
     createClient() {
+      trimObject(this.newClient);
       axiosInst.post('/api/clients', {
         client: this.newClient
       })
