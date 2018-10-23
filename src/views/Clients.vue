@@ -11,30 +11,43 @@
         <v-btn small @click.stop="addClientDialog=true" fab color="teal" dark>+</v-btn>
       </v-flex>
     </v-layout>
-    <v-layout row class="mb-2">
-      <v-flex xs2 sm1>
+
+    <v-layout column class="mb-2">
+      <v-flex>
         <v-btn small color="primary" @click.stop="filterClients" fab>
           <v-icon>filter_list</v-icon>
         </v-btn>
       </v-flex>
-      <v-flex xs4 sm2>
+      <v-flex sm2>
         <v-select
           v-model="filter.status"
           :items="statuses"
           label="Статус"
         ></v-select>
       </v-flex>
+      <v-flex>
+        <v-autocomplete
+          v-model="filter.place"
+          label="Насел. пункт"
+          item-text="name"
+          item-value="_id"
+          :items="allPlaces"
+          :chips="true"
+          :deletable-chips="true"
+        >
+        </v-autocomplete>
+      </v-flex>
     </v-layout>
 
     <v-layout row>
       <v-flex class="mb-2">
         <v-text-field
-          :placeholder="placeholder"
+          label="поиск"
           :messages = [clients.length]
           v-model="searchStr"
-          @focus="placeholder='поиск'"
           @input="searchDebounced"
         ></v-text-field>
+        <!-- @focus="placeholder='поиск'" -->
         <!-- @input="findClientsDeb" -->
       </v-flex>
     </v-layout>
@@ -91,9 +104,9 @@ export default {
       clients: [],
       searchStr: '',
       filter: {
-        status: 'SHIPPED'
+        status: 'SHIPPED',
+        place: null
       },
-      placeholder: 'поиск',
       addClientDialog: false,
       newClient: {
         name: "",
@@ -105,10 +118,11 @@ export default {
   },
   computed: {
     statuses() {return this.$store.state.statuses},
-    clientsTotal() {return this.$store.state.clientsTotal}
+    clientsTotal() {return this.$store.state.clientsTotal},
+    allPlaces() {return this.$store.state.allPlaces}
   },
   watch: {
-    'filter.status': 'filterClients'
+    // 'filter.status': 'filterClients'
   },
   methods: {
     createClient() {
@@ -121,7 +135,6 @@ export default {
     },
     filterClients() {
       this.searchStr = '';
-      this.placeholder = 'фильтр';
       axiosInst.get('/api/clients/filter', {
         params: {
           filter: JSON.stringify(this.filter)

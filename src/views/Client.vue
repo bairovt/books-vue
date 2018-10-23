@@ -109,10 +109,10 @@
                 <v-list-tile :key="order._key" :to="`/orders/${order._key}`">
                   <v-list-tile-content>
                     <v-list-tile-title>
-                      {{order.book.title}} № {{order.num}}
+                      {{order.book.title}}
                     </v-list-tile-title>
                     <v-list-tile-sub-title>
-                      {{order | sum}} / {{order | paid}} р. {{order.status | status}}
+                      <span v-if="order.num">№{{order.num}}</span> {{order.status | status}} {{order | sum}} / {{order | paid}} р.
                     </v-list-tile-sub-title>
                   </v-list-tile-content>
                 </v-list-tile>
