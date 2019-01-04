@@ -83,7 +83,8 @@ export default {
   created() {
     this.$store.dispatch('fetchAllBooks');
     this.$store.dispatch('fetchClientsTotal');
-    this.$store.dispatch('fetchAllPlaces')
+    this.$store.dispatch('fetchAllPlaces');
+    this.$store.dispatch('fetchAllJobs');
   }
 }
 </script>

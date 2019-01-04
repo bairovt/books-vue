@@ -10,6 +10,7 @@
           </v-btn>
           <span>{{client.calledAt | ruDate}}</span>
           <p v-if="client.place"><small>насел. пункт:</small> {{client.place | placeName}}</p>
+          <p v-if="client.job"><small>орг-я:</small> {{client.job | jobName}}</p>
       </v-flex>
       <v-flex xs2>
         <v-menu bottom right offset-y>
@@ -309,12 +310,13 @@ export default {
     return {
       client: {
         name: '',
-        phone: '',
-        phone2: '',
-        info: '',
+        phone: null,
+        phone2: null,
+        info: null,
         orders: [],
         calledAt: '',
         place: null,
+        job: null,
         checked: undefined
       },
       addOrderDialog: false,
@@ -349,6 +351,7 @@ export default {
         phone: this.client.phone,
         phone2: this.client.phone2,
         place: this.client.place,
+        job: this.client.job,
       })
         .then(resp => {
           // this.client.info = resp.data;

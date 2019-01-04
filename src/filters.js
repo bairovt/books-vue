@@ -7,12 +7,22 @@ Vue.filter('localeDate', localeDate);
 Vue.filter('status', status);
 Vue.filter('ruDate', ruDate);
 Vue.filter('placeName', placeName);
+Vue.filter('jobName', jobName);
 
 function placeName(placeId) {
+    if (!placeId) return null;
     const place =  store.state.allPlaces.find(el => {
         return el._id === placeId;
     });
     return place.name;
+}
+
+function jobName(jobId) {
+    if (!jobId) return null;
+    const job =  store.state.allJobs.find(el => {
+        return el._id === jobId;
+    });
+    return job.name;
 }
 
 function ruDate(ISOdate) {

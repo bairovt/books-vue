@@ -29,7 +29,7 @@
       <v-flex xs12 sm6>
         <v-list>
           <template v-for="(place, index) in places">
-            <v-list-tile :key="place._key" :to="`/api/places/${place._key}`">
+            <v-list-tile :key="place._key" :to="`/places/${place._key}`">
               <v-list-tile-content>
                 <v-list-tile-title>
                   {{place.name}}

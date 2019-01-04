@@ -16,10 +16,20 @@
                 </v-text-field>
                 <v-autocomplete
                     v-model="client.place"
-                    placeholder="Насел. пункт"
+                    label="Насел. пункт"
                     item-text="name"
                     item-value="_id"
                     :items="allPlaces"
+                    :chips="true"
+                    :deletable-chips="true"
+                >
+                </v-autocomplete>
+                <v-autocomplete
+                    v-model="client.job"
+                    label="Организация"
+                    item-text="name"
+                    item-value="_id"
+                    :items="allJobs"
                     :chips="true"
                     :deletable-chips="true"
                 >
@@ -38,7 +48,20 @@ export default {
         }
     },
     computed: {
-        allPlaces() {return this.$store.state.allPlaces}
+        allPlaces() {return this.$store.state.allPlaces},
+        allJobs() {return this.$store.state.allJobs}
+    },
+    watch: {
+        'client.job': function(newJobId, oldJobId) {
+            if (newJobId) {
+                const job = this.allJobs.find(job => {
+                    return job._id === newJobId;
+                })
+                if (job && job.place) {
+                    this.client.place = job.place;
+                }
+            }
+        }
     }
 }
 </script>

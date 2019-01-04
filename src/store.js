@@ -11,6 +11,7 @@ export default new Vuex.Store({
     clients: [],
     clientsTotal: 0,
     allPlaces: [],
+    allJobs: [],
     user: {
       name: 'username'
     },
@@ -29,7 +30,9 @@ export default new Vuex.Store({
     setBooks(state, payload) {state.books = payload},
     setClientsTotal(state, payload) {state.clientsTotal = payload},
     setAllPlaces(state, payload) {state.allPlaces = payload},
-    addPlace(state, payload) {state.allPlaces.push(payload)}
+    addPlace(state, payload) {state.allPlaces.push(payload)},
+    setAllJobs(state, payload) {state.allJobs = payload},
+    addJob(state, payload) {state.allJobs.push(payload)}
   },
   actions: {
     fetchAllBooks({commit}) {
@@ -50,6 +53,13 @@ export default new Vuex.Store({
       axiosInst.get('/api/places/all')
         .then(resp => {
           commit('setAllPlaces', resp.data);
+        })
+        .catch(console.error);
+    },
+    fetchAllJobs({commit}) {
+      axiosInst.get('/api/jobs/all')
+        .then(resp => {
+          commit('setAllJobs', resp.data);
         })
         .catch(console.error);
     }

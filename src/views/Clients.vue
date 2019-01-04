@@ -3,12 +3,28 @@
     <v-layout>
       <v-flex>
         <v-btn round @click.stop="fetchAllClients">
-          <v-subheader>{{clientsTotal}}</v-subheader>
+          <v-subheader>Все {{clientsTotal}}</v-subheader>
+        </v-btn>
+        <v-btn round @click.stop="fetchNotCheckedClients">
+          <v-subheader>Не сверенные</v-subheader>
         </v-btn>
       </v-flex>
       <v-spacer></v-spacer>
       <v-flex xs2 sm1 class="text-lg-right">
         <v-btn small @click.stop="addClientDialog=true" fab color="teal" dark>+</v-btn>
+      </v-flex>
+    </v-layout>
+
+    <v-layout row>
+      <v-flex class="mb-2">
+        <v-text-field
+          label="поиск"
+          :messages = [clients.length]
+          v-model="searchStr"
+          @input="searchDebounced"
+        ></v-text-field>
+        <!-- @focus="placeholder='поиск'" -->
+        <!-- @input="findClientsDeb" -->
       </v-flex>
     </v-layout>
 
@@ -37,20 +53,20 @@
         >
         </v-autocomplete>
       </v-flex>
-    </v-layout>
-
-    <v-layout row>
-      <v-flex class="mb-2">
-        <v-text-field
-          label="поиск"
-          :messages = [clients.length]
-          v-model="searchStr"
-          @input="searchDebounced"
-        ></v-text-field>
-        <!-- @focus="placeholder='поиск'" -->
-        <!-- @input="findClientsDeb" -->
+      <v-flex>
+        <v-autocomplete
+          v-model="filter.job"
+          label="Организация"
+          item-text="name"
+          item-value="_id"
+          :items="allJobs"
+          :chips="true"
+          :deletable-chips="true"
+        >
+        </v-autocomplete>
       </v-flex>
     </v-layout>
+
     <v-layout column>
       <v-flex xs12 sm6>
         <v-list>
@@ -105,21 +121,24 @@ export default {
       searchStr: '',
       filter: {
         status: 'SHIPPED',
-        place: null
+        place: null,
+        job: null
       },
       addClientDialog: false,
       newClient: {
-        name: "",
-        phone: "",
-        phone2: "",
-        place: ""
+        name: null,
+        phone: null,
+        phone2: null,
+        place: null,
+        job: null
       }
     }
   },
   computed: {
     statuses() {return this.$store.state.statuses},
     clientsTotal() {return this.$store.state.clientsTotal},
-    allPlaces() {return this.$store.state.allPlaces}
+    allPlaces() {return this.$store.state.allPlaces},
+    allJobs() {return this.$store.state.allJobs}
   },
   watch: {
     // 'filter.status': 'filterClients'
@@ -147,6 +166,14 @@ export default {
       this.searchStr = '';
       this.placeholder = 'все';
       axiosInst.get('/api/clients/all')
+        .then(resp => {
+          this.clients = resp.data;
+        })
+        .catch(console.error);
+    },
+    fetchNotCheckedClients() {
+      this.searchStr = '';
+      axiosInst.get('/api/clients/not-checked')
         .then(resp => {
           this.clients = resp.data;
         })

@@ -6,6 +6,8 @@ import Client from './views/Client.vue';
 import Order from './views/Order.vue';
 import Places from './views/Places.vue';
 // import Place from './views/Place.vue';
+import Jobs from './views/Jobs.vue';
+// import Job from './views/Job.vue';
 
 Vue.use(Router);
 
@@ -35,6 +37,16 @@ export default new Router({
       path: '/places',
       name: 'places',
       component: Places,
+    },
+    // {
+    //   path: '/places/:key',
+    //   name: 'place',
+    //   component: Place,
+    // },
+    {
+      path: '/jobs',
+      name: 'jobs',
+      component: Jobs,
     },
     // {
     //   path: '/places/:key',
