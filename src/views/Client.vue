@@ -2,7 +2,7 @@
   <v-container>
     <v-layout>
       <v-flex sm6 xs10 v-if="client.name">
-          <h2>{{client.name}}<span v-if="client.hasOwnProperty('xlsA') && !client.checked"> &#9679;</span></h2>
+          <h2>{{client.name}}<span v-if="client.hasOwnProperty('xls') && !client.checked"> &#9679;</span></h2>
           <big><a :href="`tel:${client.phone}`">{{client.phone}}</a></big> &nbsp;
           <big><a :href="`tel:${client.phone2}`">{{client.phone2}}</a></big> &nbsp;
           <v-btn fab small @click.stop="setCallDateDialog = true">
@@ -47,22 +47,22 @@
     </v-layout>
 
     <!-- <v-divider></v-divider> -->
-    <table v-if="client.hasOwnProperty('xlsA') && !client.checked">
+    <table v-if="client.hasOwnProperty('xls') && !client.checked">
       <tr>
         <td>A (номера тетр.)</td>
-        <td>{{client.xlsA}}</td>
+        <td>{{client.xls.A}}</td>
       </tr>
       <tr>
         <td>E (организация)</td>
-        <td>{{client.xlsE}}</td>
+        <td>{{client.xls.E}}</td>
       </tr>
       <tr>
         <td>F (насел. пункт)</td>
-        <td>{{client.xlsF}}</td>
+        <td>{{client.xls.F}}</td>
       </tr>
       <tr>
         <td>G (Тэмуджин)</td>
-        <td>{{client.xlsG}}</td>
+        <td>{{client.xls.G}}</td>
       </tr>
       <tr>
         <td>H (Тэмуджин)</td>
@@ -317,6 +317,7 @@ export default {
         calledAt: '',
         place: null,
         job: null,
+        xls: {},
         checked: undefined
       },
       addOrderDialog: false,
